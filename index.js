@@ -17,19 +17,23 @@ function myRobo(log, config) {
   this.manufactInfo = config['mower'] + "/Robonect";
   this.modelInfo = config['model'] + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
+  this.card = config['robonect-card'];
+  this.tempUrl = url.parse(config['getUrl'] + '/json?cmd=health');
 }
 
 myRobo.prototype = {
   getServices: function () {
+    this.services = [];
     
-    /* Information Service */
 
+    /* Information Service */
     let informationService = new Service.AccessoryInformation();
     informationService
       .setCharacteristic(Characteristic.Manufacturer, this.manufactInfo)
       .setCharacteristic(Characteristic.Model, this.modelInfo)
       .setCharacteristic(Characteristic.SerialNumber, this.serialNumberInfo);
- 
+    this.services.push(informationService);
+    
     /* Battery Service */
 
     let batteryService = new Service.BatteryService();
@@ -42,14 +46,16 @@ myRobo.prototype = {
     batteryService
       .getCharacteristic(Characteristic.StatusLowBattery)
         .on('get', this.getLowBatteryCharacteristic.bind(this));
-
+    this.services.push(batteryService);
+    
     /* Humidity Service */
 
     let humidityService = new Service.HumiditySensor("Battery level");
     humidityService
       .getCharacteristic(Characteristic.CurrentRelativeHumidity)
         .on('get', this.getBatteryLevelCharacteristic.bind(this));
-
+    this.services.push(humidityService);
+    
     /* Switch Service */
 
     let switchService = new Service.Switch("Auto/Home");
@@ -57,20 +63,33 @@ myRobo.prototype = {
       .getCharacteristic(Characteristic.On)
         .on('get', this.getSwitchOnCharacteristic.bind(this))
         .on('set', this.setSwitchOnCharacteristic.bind(this));
-
+    this.services.push(switchService);
+    
     /* Fan Service */
 
     let fanService = new Service.Fan("Mowing");
     fanService
       .getCharacteristic(Characteristic.On)
         .on('get', this.getMowerOnCharacteristic.bind(this));
-        
+    this.services.push(fanService);
+    
+    if(this.card === "HX"){
+      let tempService = new Service.TemperatureSensor("Temperature");
+      tempService
+        .getCharacteristic(Characteristic.CurrentTemperature)
+          .on('get', this.getTemperatureCharacteristic.bind(this));
+      this.services.push(tempService);
+      this.tempService = tempService;
+    }
+
     this.informationService = informationService;
     this.batteryService = batteryService;
     this.humidityService = humidityService;
     this.switchService = switchService;
     this.fanService = fanService;
-    return [informationService, batteryService, humidityService, switchService, fanService];
+
+    return this.services;
+
   },
   getBatteryLevelCharacteristic: function (next) {
     const me = this;
@@ -84,7 +103,6 @@ myRobo.prototype = {
         return next(error);
       }
       var obj = JSON.parse(body);
-      //console.log(obj.status.battery);
       return next(null, obj.status.battery);
     });
   },
@@ -101,7 +119,6 @@ myRobo.prototype = {
         return next(error);
       }
       var obj = JSON.parse(body);
-      //console.log(obj.status.status);
       if(obj.status.status === 4){
         chargingStatus = 1;
       }
@@ -184,8 +201,24 @@ myRobo.prototype = {
       if(obj.status.status === 2 || obj.status.status === 5){
         mowing = 1;
       }
-      //console.log(obj.status.status);
       return next(null, mowing);
+    });
+  },
+  getTemperatureCharacteristic: function (next) {
+    const me = this;
+    var temperature = 0;
+    request({
+        url: me.tempUrl,
+        method: 'GET',
+    }, 
+    function (error, response, body) {
+      if (error) {
+        me.log(error.message);
+        return next(error);
+      }
+      var obj = JSON.parse(body);
+      temperature = obj.health.climate.temperature;
+      return next(null, temperature);
     });
   }
 };

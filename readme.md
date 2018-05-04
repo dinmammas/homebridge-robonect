@@ -11,4 +11,8 @@ Config as below:
 	"robonect-card": "H30x or HX",  
 	"serial-number": "Serialnr of your mower",  
 	"getUrl": "http://USER:PASS@SERVER:PORT"  
-}
+}  
+  
+
+
+*Note* If you have a Robonect HX, input "HX" in capitals. There's an extra accessory for you. :)
