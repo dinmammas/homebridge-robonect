@@ -14,6 +14,7 @@ function myRobo(log, config) {
   this.statusUrl = url.parse(config['getUrl'] + '/json?cmd=status');
   this.setAutoModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=auto');
   this.setHomeModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=home');
+  this.setEodModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=eod');
   this.manufactInfo = config['mower'] + "/Robonect";
   this.modelInfo = config['model'] + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
@@ -27,6 +28,7 @@ myRobo.prototype = {
     
 
     /* Information Service */
+
     let informationService = new Service.AccessoryInformation();
     informationService
       .setCharacteristic(Characteristic.Manufacturer, this.manufactInfo)
@@ -70,9 +72,13 @@ myRobo.prototype = {
     let fanService = new Service.Fan("Mowing");
     fanService
       .getCharacteristic(Characteristic.On)
-        .on('get', this.getMowerOnCharacteristic.bind(this));
+        .on('get', this.getMowerOnCharacteristic.bind(this))
+        .on('set', this.setMowerOnCharacteristic.bind(this));
     this.services.push(fanService);
     
+
+    /* If Robonect HX - create a temperature sensor service */
+
     if(this.card === "HX"){
       let tempService = new Service.TemperatureSensor("Temperature");
       tempService
@@ -167,7 +173,6 @@ myRobo.prototype = {
   },  
   setSwitchOnCharacteristic: function (on, next) {
     const me = this;
-    me.isOn = on;
     if(on){
       me.setModeUrl = me.setAutoModeUrl;
     }else{
@@ -202,6 +207,25 @@ myRobo.prototype = {
         mowing = 1;
       }
       return next(null, mowing);
+    });
+  },
+  setMowerOnCharacteristic: function (on, next) {
+    const me = this;
+    if(on){
+      me.setModeUrl = me.setAutoModeUrl;
+    }else{
+      me.setModeUrl = me.setEodModeUrl;
+    }
+    request({
+        url: me.setModeUrl,
+        method: 'GET',
+    }, 
+    function (error, response, body) {
+      if (error) {
+        me.log(error.message);
+        return next(error);
+      }
+      return next();
     });
   },
   getTemperatureCharacteristic: function (next) {
