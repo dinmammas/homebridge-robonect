@@ -14,4 +14,4 @@ Config as below:
 }  
   
 
-**Note** If you have a Robonect HX, input "HX" in capitals as robonect-card. There's an extra accessory for you. :)
+**Note** Input "HX" in capitals as robonect-card _ONLY_ if you have a Robonect HX! There's an extra accessory for you. :)
