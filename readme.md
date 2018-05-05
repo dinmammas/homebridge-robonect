@@ -1,5 +1,5 @@
-***WIP***  
-Development ongoing. AS-IS it _should_ fetch battery percentage, simulate mowing with a fan accessory, and provide an "on/off"-switch for toggling auto/home.
+**WIP**  
+Development ongoing.  AS-IS it _should_ fetch battery percentage, simulate mowing with a fan accessory, and provide an "on/off"-switch for toggling auto/home.  To activate "end of day"-mode, click the fan accessory while it's mowing.
 
 Config as below:  
 
@@ -14,5 +14,4 @@ Config as below:
 }  
   
 
-
-*Note* If you have a Robonect HX, input "HX" in capitals. There's an extra accessory for you. :)
+**Note** If you have a Robonect HX, input "HX" in capitals as robonect-card. There's an extra accessory for you. :)
