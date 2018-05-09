@@ -2,7 +2,7 @@
 
 # Homebridge-Robonect
 
-<img src="https://user-images.githubusercontent.com/27199904/39742945-a3cf53b2-529f-11e8-8c0e-1aadb7387828.png" width="30%" align="right"> 
+<img src="https://media.giphy.com/media/ORUDaRRrDv6Gct22tS/giphy.gif" width="30%" align="right"> 
 
 Development ongoing.  AS-IS it _should_ fetch battery percentage, simulate mowing with a fan accessory, and provide an "on/off"-switch for toggling auto/home.  To activate "end of day"-mode, click the fan accessory while it's mowing.
 
