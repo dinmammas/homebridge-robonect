@@ -1,6 +1,6 @@
 {
   "name": "homebridge-robonect",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "author": "David Karlsson",
   "description": "Gets information from a Robonect card installed in various robotic lawn mowers.",
   "main": "index.js",
@@ -19,6 +19,7 @@
     "homekit"
   ],
   "dependencies": {
-    "mdns": "^2.3.4"
+    "mdns": "^2.3.4",
+    "request": "^2.65.0"
   }
 }
