@@ -24,7 +24,7 @@ Config as below:
   
 
 ### Note
- * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! There's an extra accessory for you. :)
+ * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
  * PORT is optional
 
 Discuss the plugin with me and others, [here.](http://www.robonect.de/viewtopic.php?f=55&t=1425&p=12572#p12572)
