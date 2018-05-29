@@ -6,6 +6,10 @@
 
 Development ongoing.  AS-IS it _should_ fetch battery percentage, simulate mowing with a fan accessory, and provide an "on/off"-switch for toggling auto/home.  To activate "end of day"-mode, click the fan accessory while it's mowing.
 
+## Usage
+
+`npm install -g homebridge.robonect`
+
 Config as below:  
 
 	{  

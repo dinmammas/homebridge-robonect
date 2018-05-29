@@ -15,6 +15,7 @@ function myRobo(log, config) {
   this.setAutoModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=auto');
   this.setHomeModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=home');
   this.setEodModeUrl = url.parse(config['getUrl'] + '/json?cmd=mode&mode=eod');
+  this.batteryUrl = url.parse(config['getUrl'] + '/json?cmd=battery');
   this.manufactInfo = config['mower'] + "/Robonect";
   this.modelInfo = config['model'] + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
@@ -77,13 +78,20 @@ myRobo.prototype = {
     this.services.push(fanService);
     
 
-    /* If Robonect HX - create a temperature sensor service */
+    /* If Robonect HX - fetch temp from temp sensor. Otherwise, fetch battery temp. */
 
     if(this.card === "HX"){
       let tempService = new Service.TemperatureSensor("Temperature");
       tempService
         .getCharacteristic(Characteristic.CurrentTemperature)
           .on('get', this.getTemperatureCharacteristic.bind(this));
+      this.services.push(tempService);
+      this.tempService = tempService;
+    }else{
+      let tempService = new Service.TemperatureSensor("Battery temperature");
+      tempService
+        .getCharacteristic(Characteristic.CurrentTemperature)
+          .on('get', this.getBatteryTemperatureCharacteristic.bind(this));
       this.services.push(tempService);
       this.tempService = tempService;
     }
@@ -138,7 +146,6 @@ myRobo.prototype = {
         method: 'GET',
     }, 
     function (error, response, body) {
-      var chargingStatus = 0;
       if (error) {
         me.log(error.message);
         return next(error);
@@ -242,6 +249,24 @@ myRobo.prototype = {
       }
       var obj = JSON.parse(body);
       temperature = obj.health.climate.temperature;
+      return next(null, temperature);
+    });
+  },
+  getBatteryTemperatureCharacteristic: function (next) {
+    const me = this;
+    var temperature = 0;
+    request({
+        url: me.batteryUrl,
+        method: 'GET',
+    }, 
+    function (error, response, body) {
+      if (error) {
+        me.log(error.message);
+        return next(error);
+      }
+      var obj = JSON.parse(body);
+      temperature = obj.battery.temperature;
+      temperature = temperature/10;
       return next(null, temperature);
     });
   }
