@@ -8,7 +8,7 @@ Development ongoing.  AS-IS it _should_ fetch battery percentage, simulate mowin
 
 ## Usage
 
-`npm install -g homebridge.robonect`
+`npm install -g homebridge-robonect`
 
 Config as below:  
 
