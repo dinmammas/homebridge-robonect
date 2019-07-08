@@ -117,6 +117,7 @@ myRobo.prototype = {
         return next(error);
       }
       var obj = JSON.parse(body);
+      me.log("Battery level: " + obj.status.battery);
       return next(null, obj.status.battery);
     });
   },
@@ -136,6 +137,7 @@ myRobo.prototype = {
       if(obj.status.status === 4){
         chargingStatus = 1;
       }
+      me.log("Charging: " + chargingStatus);
       return next(null, chargingStatus);
     });
   },
@@ -153,10 +155,10 @@ myRobo.prototype = {
       var obj = JSON.parse(body);
       if(obj.status.battery < 20){
         return next(null, 1);
+        me.log("MOWER HAS LOW BATTERY!");
       }else{
         return next(null, 0);
       }
-      
     });
   },
   getSwitchOnCharacteristic: function (next) {
@@ -172,7 +174,7 @@ myRobo.prototype = {
         return next(error);
       }
       var obj = JSON.parse(body);
-      if(obj.status.mode === 0){
+      if(obj.status.mode === 0 || obj.status.mode === 1){
         onn = true;
       }
       return next(null, onn);
@@ -245,10 +247,11 @@ myRobo.prototype = {
     function (error, response, body) {
       if (error) {
         me.log(error.message);
-        return next(error);
+        return next(temperature);
       }
       var obj = JSON.parse(body);
       temperature = obj.health.climate.temperature;
+      me.log("Mower temperature: " + temperature);
       return next(null, temperature);
     });
   },
@@ -262,11 +265,18 @@ myRobo.prototype = {
     function (error, response, body) {
       if (error) {
         me.log(error.message);
-        return next(error);
+        return next(null, temperature);
       }
       var obj = JSON.parse(body);
-      temperature = obj.battery.temperature;
+      if(obj.battery === undefined){
+        //me.log('Version is 1.0 beta 8 or newer');
+        temperature = obj.batteries[0].temperature;
+      }else{
+        //me.log('Version is 1.0 beta 7 or older');
+        temperature = obj.battery.temperature;
+      }
       temperature = temperature/10;
+      me.log("Battery temperature: " + temperature);
       return next(null, temperature);
     });
   }
