@@ -1,6 +1,10 @@
 var Service, Characteristic;
 const request = require('request');
+const fetch = require('node-fetch');
 const url = require('url');
+let jsonInfo = "";
+let jsonInfoAvailable = false;
+let isModern = false;
 
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
@@ -9,6 +13,7 @@ module.exports = function (homebridge) {
 };
 
 function myRobo(log, config) {
+  this.config = config;
   this.log = log;
   this.getUrl = url.parse(config['getUrl']);
   this.statusUrl = url.parse(config['getUrl'] + '/json?cmd=status');
@@ -21,12 +26,67 @@ function myRobo(log, config) {
   this.serialNumberInfo = config['serial-number'];
   this.card = config['robonect-card'];
   this.tempUrl = url.parse(config['getUrl'] + '/json?cmd=health');
-}
+  this.versionUrl = url.parse(config['getUrl'] + '/json?cmd=version');
+  //this. = false;
+  this.getCardInfo();
+ }
 
 myRobo.prototype = {
+  getCardInfo: function () {
+    const me = this;
+    //this.waiting_response = true;
+    this.log("Querying Robonect for setup data");
+    //this.log(this.versionUrl);
+    //obj = 1;
+      request({
+        url: this.versionUrl,
+        method: 'GET',
+      }, 
+      function (error, response, body) {
+        if (error) {
+          me.log("Gick ej att hämta versionsdata" + error.message);
+          return (error);
+        }
+        jsonInfo = JSON.parse(body);
+        jsonInfoAvailable = true;
+        firmwareVersion = parseFloat(jsonInfo.application.version.substring(1,4));
+        me.log("============================");
+        me.log(" ");
+        me.log("Robonect and mower connected");
+        me.log("Mower Model: " + jsonInfo.mower.msw.title);
+        me.log("Mower serial number: " + jsonInfo.mower.hardware.serial);
+        me.log("Robonect firmware version: " + jsonInfo.application.version);
+       if( firmwareVersion >= 1.2){
+          me.log("Robonect card type: " + jsonInfo.robonect.version);
+          isModern = true;
+        }
+        me.getMowerStatus();
+      });
+      
+  },
+  getMowerStatus: function(){
+    const me = this;
+    request({
+      url: this.statusUrl,
+      method: 'GET',
+    }, 
+    function (error, response, body) {
+      if (error) {
+        me.log("Gick ej att hämta versionsdata" + error.message);
+        return (error);
+      }
+      obj = JSON.parse(body);
+      setupDone = true;
+
+      mowerName = obj.name;
+      me.log("Mower name: "+ mowerName);
+      me.log(" ");
+      me.log("============================");
+    });
+  },
+
   getServices: function () {
     this.services = [];
-    
 
     /* Information Service */
 
@@ -77,25 +137,14 @@ myRobo.prototype = {
         .on('set', this.setMowerOnCharacteristic.bind(this));
     this.services.push(fanService);
     
+    let tempService = new Service.TemperatureSensor("Temperature");
+    tempService
+      .getCharacteristic(Characteristic.CurrentTemperature)
+        .on('get', this.getTemperatureCharacteristic.bind(this));
+    this.services.push(tempService);
+    
 
-    /* If Robonect HX - fetch temp from temp sensor. Otherwise, fetch battery temp. */
-
-    if(this.card === "HX"){
-      let tempService = new Service.TemperatureSensor("Temperature");
-      tempService
-        .getCharacteristic(Characteristic.CurrentTemperature)
-          .on('get', this.getTemperatureCharacteristic.bind(this));
-      this.services.push(tempService);
-      this.tempService = tempService;
-    }else{
-      let tempService = new Service.TemperatureSensor("Battery temperature");
-      tempService
-        .getCharacteristic(Characteristic.CurrentTemperature)
-          .on('get', this.getBatteryTemperatureCharacteristic.bind(this));
-      this.services.push(tempService);
-      this.tempService = tempService;
-    }
-
+    this.tempService = tempService;
     this.informationService = informationService;
     this.batteryService = batteryService;
     this.humidityService = humidityService;
@@ -107,19 +156,20 @@ myRobo.prototype = {
   },
   getBatteryLevelCharacteristic: function (next) {
     const me = this;
+
     request({
         url: me.statusUrl,
         method: 'GET',
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("BL url: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
       me.log("Battery level: " + obj.status.battery);
       return next(null, obj.status.battery);
-    });
+    }); 
   },
   getChargingStateCharacteristic: function (next) {
     const me = this;
@@ -130,7 +180,7 @@ myRobo.prototype = {
     function (error, response, body) {
       var chargingStatus = 0;
       if (error) {
-        me.log(error.message);
+        me.log("CS url: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -149,7 +199,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("LoBatt url: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -170,7 +220,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("SwOn url: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -193,7 +243,7 @@ myRobo.prototype = {
     },
     function (error, response) {
       if (error) {
-        me.log(error.message);
+        me.log("SwOnC url: " + error.message);
         return next(error);
       }
       return next();
@@ -208,7 +258,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("get MOC url: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -231,7 +281,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("set MOC url: " + error.message);
         return next(error);
       }
       return next();
@@ -239,21 +289,61 @@ myRobo.prototype = {
   },
   getTemperatureCharacteristic: function (next) {
     const me = this;
+    var type;
+    
+    me.log(jsonInfoAvailable,isModern);
+    
+    if(jsonInfoAvailable){
+      if(isModern){
+        if(jsonInfo.robonect.version === "Robonect H30x"){
+          type = "H30x";
+        }else{
+          type = "HX";
+        }
+      }else{
+        type = me.card;
+      }
+    }
     var temperature = 0;
-    request({
+    me.log(type);
+    if(type === "HX"){
+      request({
         url: me.tempUrl,
         method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
-        me.log(error.message);
-        return next(temperature);
-      }
-      var obj = JSON.parse(body);
-      temperature = obj.health.climate.temperature;
-      me.log("Mower temperature: " + temperature);
-      return next(null, temperature);
-    });
+      }, 
+      function (error, response, body) {
+        if (error) {
+          me.log("temp url: " + error.message);
+          return next(temperature);
+        }
+        var obj = JSON.parse(body);
+        temperature = obj.health.climate.temperature;
+        me.log("Mower temperature: " + temperature);
+        return next(null, temperature);
+      });
+    }else{
+      request({
+        url: me.batteryUrl,
+        method: 'GET',
+      }, 
+      function (error, response, body) {
+        if (error) {
+          me.log("tempC url: " + error.message);
+          return next(null, temperature);
+        }
+        var obj = JSON.parse(body);
+        if(obj.battery === undefined){
+          //me.log('Version is 1.0 beta 8 or newer');
+          temperature = obj.batteries[0].temperature;
+        }else{
+          //me.log('Version is 1.0 beta 7 or older');
+          temperature = obj.battery.temperature;
+        }
+        temperature = temperature/10;
+        me.log("Battery temperature: " + temperature);
+        return next(null, temperature);
+      });
+    }    
   },
   getBatteryTemperatureCharacteristic: function (next) {
     const me = this;
@@ -264,7 +354,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log(error.message);
+        me.log("tempC url: " + error.message);
         return next(null, temperature);
       }
       var obj = JSON.parse(body);
