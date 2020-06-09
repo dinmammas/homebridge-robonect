@@ -1,6 +1,5 @@
 var Service, Characteristic;
 const request = require('request');
-const fetch = require('node-fetch');
 const url = require('url');
 let jsonInfo = "";
 let jsonInfoAvailable = false;
@@ -76,8 +75,6 @@ myRobo.prototype = {
         return (error);
       }
       obj = JSON.parse(body);
-      setupDone = true;
-
       mowerName = obj.name;
       me.log("Mower name: "+ mowerName);
       me.log(" ");
@@ -137,6 +134,8 @@ myRobo.prototype = {
         .on('set', this.setMowerOnCharacteristic.bind(this));
     this.services.push(fanService);
     
+    /* Temperature service */
+
     let tempService = new Service.TemperatureSensor("Temperature");
     tempService
       .getCharacteristic(Characteristic.CurrentTemperature)
@@ -163,7 +162,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("BL url: " + error.message);
+        me.log("BattLevel error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -180,14 +179,16 @@ myRobo.prototype = {
     function (error, response, body) {
       var chargingStatus = 0;
       if (error) {
-        me.log("CS url: " + error.message);
+        me.log("Charge State error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
       if(obj.status.status === 4){
         chargingStatus = 1;
       }
-      me.log("Charging: " + chargingStatus);
+      if(chargingStatus > 0){
+        me.log("Charging");
+      }
       return next(null, chargingStatus);
     });
   },
@@ -199,7 +200,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("LoBatt url: " + error.message);
+        me.log("Low Batteru error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -220,7 +221,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("SwOn url: " + error.message);
+        me.log("Get Switch on error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -243,7 +244,7 @@ myRobo.prototype = {
     },
     function (error, response) {
       if (error) {
-        me.log("SwOnC url: " + error.message);
+        me.log("Set Switch on error: " + error.message);
         return next(error);
       }
       return next();
@@ -258,7 +259,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("get MOC url: " + error.message);
+        me.log("Get Mower On error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -281,7 +282,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("set MOC url: " + error.message);
+        me.log("Set Mower On error: " + error.message);
         return next(error);
       }
       return next();
@@ -291,7 +292,7 @@ myRobo.prototype = {
     const me = this;
     var type;
     
-    me.log(jsonInfoAvailable,isModern);
+    //me.log("JSON OK?: " + jsonInfoAvailable + " Modern firmware: " + isModern);
     
     if(jsonInfoAvailable){
       if(isModern){
@@ -305,7 +306,7 @@ myRobo.prototype = {
       }
     }
     var temperature = 0;
-    me.log(type);
+    //me.log(type);
     if(type === "HX"){
       request({
         url: me.tempUrl,
@@ -313,7 +314,7 @@ myRobo.prototype = {
       }, 
       function (error, response, body) {
         if (error) {
-          me.log("temp url: " + error.message);
+          me.log("Get temperature error: " + error.message);
           return next(temperature);
         }
         var obj = JSON.parse(body);
@@ -328,7 +329,7 @@ myRobo.prototype = {
       }, 
       function (error, response, body) {
         if (error) {
-          me.log("tempC url: " + error.message);
+          me.log("Get battery temperature error: " + error.message);
           return next(null, temperature);
         }
         var obj = JSON.parse(body);
@@ -344,30 +345,5 @@ myRobo.prototype = {
         return next(null, temperature);
       });
     }    
-  },
-  getBatteryTemperatureCharacteristic: function (next) {
-    const me = this;
-    var temperature = 0;
-    request({
-        url: me.batteryUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
-        me.log("tempC url: " + error.message);
-        return next(null, temperature);
-      }
-      var obj = JSON.parse(body);
-      if(obj.battery === undefined){
-        //me.log('Version is 1.0 beta 8 or newer');
-        temperature = obj.batteries[0].temperature;
-      }else{
-        //me.log('Version is 1.0 beta 7 or older');
-        temperature = obj.battery.temperature;
-      }
-      temperature = temperature/10;
-      me.log("Battery temperature: " + temperature);
-      return next(null, temperature);
-    });
   }
 };
