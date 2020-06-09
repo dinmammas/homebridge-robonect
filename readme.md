@@ -27,5 +27,6 @@ Config as below:
  * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
  * PORT is optional
  * BE SURE to update to at least 1.0.18 if using Robonect firmware 1.0 beta8 or newer.
+ * If you've updated to robonect firmware 1.2RC0 - please contact me via the forum link below with any errors. Thank you.
 
 Discuss the plugin with me and others, [here.](https://forum.robonect.de/viewforum.php?f=55)
