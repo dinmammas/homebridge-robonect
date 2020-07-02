@@ -26,24 +26,21 @@ function myRobo(log, config) {
   this.card = config['robonect-card'];
   this.tempUrl = url.parse(config['getUrl'] + '/json?cmd=health');
   this.versionUrl = url.parse(config['getUrl'] + '/json?cmd=version');
-  //this. = false;
   this.getCardInfo();
  }
 
 myRobo.prototype = {
   getCardInfo: function () {
     const me = this;
-    //this.waiting_response = true;
-    this.log("Querying Robonect for setup data");
-    //this.log(this.versionUrl);
-    //obj = 1;
+    me.log("Querying Robonect for setup data");
+   
       request({
         url: this.versionUrl,
         method: 'GET',
       }, 
       function (error, response, body) {
         if (error) {
-          me.log("Gick ej att hämta versionsdata" + error.message);
+          me.log("Unable to fetch setup data: " + error.message);
           return (error);
         }
         jsonInfo = JSON.parse(body);
@@ -200,7 +197,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("Low Batteru error: " + error.message);
+        me.log("Low Battery error: " + error.message);
         return next(error);
       }
       var obj = JSON.parse(body);
@@ -292,8 +289,6 @@ myRobo.prototype = {
     const me = this;
     var type;
     
-    //me.log("JSON OK?: " + jsonInfoAvailable + " Modern firmware: " + isModern);
-    
     if(jsonInfoAvailable){
       if(isModern){
         if(jsonInfo.robonect.version === "Robonect H30x"){
@@ -306,7 +301,6 @@ myRobo.prototype = {
       }
     }
     var temperature = 0;
-    //me.log(type);
     if(type === "HX"){
       request({
         url: me.tempUrl,
@@ -334,10 +328,8 @@ myRobo.prototype = {
         }
         var obj = JSON.parse(body);
         if(obj.battery === undefined){
-          //me.log('Version is 1.0 beta 8 or newer');
           temperature = obj.batteries[0].temperature;
         }else{
-          //me.log('Version is 1.0 beta 7 or older');
           temperature = obj.battery.temperature;
         }
         temperature = temperature/10;
