@@ -26,6 +26,7 @@ function myRobo(log, config) {
   this.card = config['robonect-card'];
   this.tempUrl = url.parse(config['getUrl'] + '/json?cmd=health');
   this.versionUrl = url.parse(config['getUrl'] + '/json?cmd=version');
+  this.showHumidity = config['show-humidity'];
   this.getCardInfo();
  }
 
@@ -106,12 +107,14 @@ myRobo.prototype = {
     this.services.push(batteryService);
     
     /* Humidity Service */
-
-    let humidityService = new Service.HumiditySensor("Battery level");
-    humidityService
-      .getCharacteristic(Characteristic.CurrentRelativeHumidity)
-        .on('get', this.getBatteryLevelCharacteristic.bind(this));
-    this.services.push(humidityService);
+    if(this.showHumidity !== "no"){
+      let humidityService = new Service.HumiditySensor("Battery level");
+      humidityService
+        .getCharacteristic(Characteristic.CurrentRelativeHumidity)
+          .on('get', this.getBatteryLevelCharacteristic.bind(this));
+      this.services.push(humidityService);
+      this.humidityService = humidityService;
+    }
     
     /* Switch Service */
 
@@ -143,7 +146,7 @@ myRobo.prototype = {
     this.tempService = tempService;
     this.informationService = informationService;
     this.batteryService = batteryService;
-    this.humidityService = humidityService;
+    
     this.switchService = switchService;
     this.fanService = fanService;
 
