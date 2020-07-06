@@ -19,7 +19,7 @@ Config as below:
 		"model": "Mower Model",  
 		"robonect-card": "H30x or HX",  
 		"serial-number": "Serialnr of your mower",  
-        "show-humidity": "yes or no",
+		"show-humidity": "yes or no",  
 		"getUrl": "http://USER:PASS@SERVER:PORT"  
 	}  
   

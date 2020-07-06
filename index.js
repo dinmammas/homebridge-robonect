@@ -1,5 +1,6 @@
 var Service, Characteristic;
 const request = require('request');
+const fetch = require('node-fetch');
 const url = require('url');
 let jsonInfo = "";
 let jsonInfoAvailable = false;
@@ -34,17 +35,12 @@ myRobo.prototype = {
   getCardInfo: function () {
     const me = this;
     me.log("Querying Robonect for setup data");
-   
-      request({
-        url: this.versionUrl,
-        method: 'GET',
-      }, 
-      function (error, response, body) {
-        if (error) {
-          me.log("Unable to fetch setup data: " + error.message);
-          return (error);
-        }
-        jsonInfo = JSON.parse(body);
+    fetch(this.versionUrl)
+    .then(res => res.json())
+    .then(json => cardInfoSub(json));
+      
+      function cardInfoSub(json) {
+        jsonInfo = json;
         jsonInfoAvailable = true;
         firmwareVersion = parseFloat(jsonInfo.application.version.substring(1,4));
         me.log("============================");
@@ -56,10 +52,11 @@ myRobo.prototype = {
        if( firmwareVersion >= 1.2){
           me.log("Robonect card type: " + jsonInfo.robonect.version);
           isModern = true;
+        }else{
+          me.log("Robonect firmware is old, consider updating.");
         }
         me.getMowerStatus();
-      });
-      
+      }
   },
   getMowerStatus: function(){
     const me = this;

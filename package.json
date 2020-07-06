@@ -22,6 +22,7 @@
     "homekit"
   ],
   "dependencies": {
+    "node-fetch": "^2.6.0",
     "request": "^2.65.0"
   }
 }
