@@ -66,7 +66,7 @@ myRobo.prototype = {
     }, 
     function (error, response, body) {
       if (error) {
-        me.log("Gick ej att hämta versionsdata" + error.message);
+        me.log("Unable to fetch setup data: " + error.message);
         return (error);
       }
       obj = JSON.parse(body);
