@@ -43,19 +43,23 @@ myRobo.prototype = {
         jsonInfo = json;
         jsonInfoAvailable = true;
         firmwareVersion = parseFloat(jsonInfo.application.version.substring(1,4));
-        me.log("============================");
-        me.log(" ");
-        me.log("Robonect and mower connected");
-        me.log("Mower Model: " + jsonInfo.mower.msw.title);
-        me.log("Mower serial number: " + jsonInfo.mower.hardware.serial);
-        me.log("Robonect firmware version: " + jsonInfo.application.version);
-       if( firmwareVersion >= 1.2){
-          me.log("Robonect card type: " + jsonInfo.robonect.version);
-          isModern = true;
-        }else{
-          me.log("Robonect firmware is old, consider updating.");
+        try{
+          me.log("============================");
+          me.log(" ");
+          me.log("Robonect and mower connected");
+          me.log("Mower Model: " + jsonInfo.mower.msw.title);
+          me.log("Mower serial number: " + jsonInfo.mower.hardware.serial);
+          me.log("Robonect firmware version: " + jsonInfo.application.version);
+         if( firmwareVersion >= 1.2){
+            me.log("Robonect card type: " + jsonInfo.robonect.version);
+            isModern = true;
+          }else{
+            me.log("Robonect firmware is old, consider updating.");
+          }
+          me.getMowerStatus();
+        }catch(error){
+          me.log("Something went wrong when fetching setup data.");
         }
-        me.getMowerStatus();
       }
   },
   getMowerStatus: function(){
