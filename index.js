@@ -64,21 +64,19 @@ myRobo.prototype = {
   },
   getMowerStatus: function(){
     const me = this;
-    request({
-      url: this.statusUrl,
-      method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => mowerStatSub(json));
+
+    function mowerStatSub(json){
+      try{
+        me.log("Mower name: "+ json.name);
+        me.log(" ");
+        me.log("============================");
+      }catch(error){
         me.log("Unable to fetch setup data: " + error.message);
-        return (error);
       }
-      obj = JSON.parse(body);
-      mowerName = obj.name;
-      me.log("Mower name: "+ mowerName);
-      me.log(" ");
-      me.log("============================");
-    });
+    }
   },
 
   getServices: function () {
