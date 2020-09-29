@@ -251,7 +251,7 @@ myRobo.prototype = {
     .then(res => res.json())
     .then(json => gmOnSub(json));
     
-    function gmOnSub (json) {
+    function gmOnSub(json) {
       try{
         if(json.status.status === 2 || json.status.status === 5){
           mowing = 1;
