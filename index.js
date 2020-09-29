@@ -1,5 +1,4 @@
 var Service, Characteristic;
-const request = require('request');
 const fetch = require('node-fetch');
 const url = require('url');
 let jsonInfo = "";
@@ -39,28 +38,28 @@ myRobo.prototype = {
     .then(res => res.json())
     .then(json => cardInfoSub(json));
       
-      function cardInfoSub(json) {
-        jsonInfo = json;
-        jsonInfoAvailable = true;
-        firmwareVersion = parseFloat(jsonInfo.application.version.substring(1,4));
-        try{
-          me.log("============================");
-          me.log(" ");
-          me.log("Robonect and mower connected");
-          me.log("Mower Model: " + jsonInfo.mower.msw.title);
-          me.log("Mower serial number: " + jsonInfo.mower.hardware.serial);
-          me.log("Robonect firmware version: " + jsonInfo.application.version);
-         if( firmwareVersion >= 1.2){
-            me.log("Robonect card type: " + jsonInfo.robonect.version);
-            isModern = true;
-          }else{
-            me.log("Robonect firmware is old, consider updating.");
-          }
-          me.getMowerStatus();
-        }catch(error){
-          me.log("Something went wrong when fetching setup data.");
+    function cardInfoSub(json) {
+      jsonInfo = json;
+      jsonInfoAvailable = true;
+      firmwareVersion = parseFloat(jsonInfo.application.version.substring(1,4));
+      try{
+        me.log("============================");
+        me.log(" ");
+        me.log("Robonect and mower connected");
+        me.log("Mower Model: " + jsonInfo.mower.msw.title);
+        me.log("Mower serial number: " + jsonInfo.mower.hardware.serial);
+        me.log("Robonect firmware version: " + jsonInfo.application.version);
+       if( firmwareVersion >= 1.2){
+          me.log("Robonect card type: " + jsonInfo.robonect.version);
+          isModern = true;
+        }else{
+          me.log("The Robonect firmware is old, consider updating.");
         }
+        me.getMowerStatus();
+      }catch(error){
+        me.log("Something went wrong when fetching setup data.");
       }
+    }
   },
   getMowerStatus: function(){
     const me = this;
@@ -154,81 +153,81 @@ myRobo.prototype = {
   },
   getBatteryLevelCharacteristic: function (next) {
     const me = this;
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => blSub(json));
 
-    request({
-        url: me.statusUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
+    function blSub(json){
+      try{
+        me.log("Battery level: " + json.status.battery);
+        return next(null, json.status.battery);
+      }catch(error){
         me.log("BattLevel error: " + error.message);
         return next(error);
       }
-      var obj = JSON.parse(body);
-      me.log("Battery level: " + obj.status.battery);
-      return next(null, obj.status.battery);
-    }); 
+    }
   },
   getChargingStateCharacteristic: function (next) {
     const me = this;
-    request({
-        url: me.statusUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => csSub(json));
+
+    function csSub(json) {
       var chargingStatus = 0;
-      if (error) {
+      try{
+        if(json.status.status === 4){
+          chargingStatus = 1;
+        }
+        if(chargingStatus > 0){
+          me.log("Charging");
+        }
+      }catch(error){
         me.log("Charge State error: " + error.message);
         return next(error);
       }
-      var obj = JSON.parse(body);
-      if(obj.status.status === 4){
-        chargingStatus = 1;
-      }
-      if(chargingStatus > 0){
-        me.log("Charging");
-      }
       return next(null, chargingStatus);
-    });
+    }
   },
   getLowBatteryCharacteristic: function (next) {
     const me = this;
-    request({
-        url: me.statusUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => lbSub(json));
+
+    function lbSub(json){
+      try{
+        if(json.status.battery < 20){
+          return next(null, 1);
+          me.log("MOWER HAS LOW BATTERY!");
+        }else{
+          return next(null, 0);
+        }
+      }catch(error){
         me.log("Low Battery error: " + error.message);
         return next(error);
       }
-      var obj = JSON.parse(body);
-      if(obj.status.battery < 20){
-        return next(null, 1);
-        me.log("MOWER HAS LOW BATTERY!");
-      }else{
-        return next(null, 0);
-      }
-    });
+    }
   },
   getSwitchOnCharacteristic: function (next) {
     const me = this;
     var onn = false;
-    request({
-        url: me.statusUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => gswOnSub(json));
+
+    function gswOnSub(json){
+      try{
+        if(json.status.mode === 0 || json.status.mode === 1){
+          onn = true;
+          me.log("SwitchOn: " + json.status.mode);
+        }
+      }catch(error){
         me.log("Get Switch on error: " + error.message);
         return next(error);
       }
-      var obj = JSON.parse(body);
-      if(obj.status.mode === 0 || obj.status.mode === 1){
-        onn = true;
-      }
       return next(null, onn);
-    });
+    }
   },  
   setSwitchOnCharacteristic: function (on, next) {
     const me = this;
@@ -237,36 +236,32 @@ myRobo.prototype = {
     }else{
       me.setModeUrl = me.setHomeModeUrl;
     }
-    request({
-      url: me.setModeUrl,
-      method: 'GET',
-    },
-    function (error, response) {
-      if (error) {
-        me.log("Set Switch on error: " + error.message);
+
+    fetch(me.setModeUrl).catch(error => {
+      me.log("Set Switch on error: " + error.message);
         return next(error);
-      }
-      return next();
     });
+
+    return next();
   },
   getMowerOnCharacteristic: function (next) {
     const me = this;
     var mowing = 0;
-    request({
-        url: me.statusUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
+    fetch(this.statusUrl)
+    .then(res => res.json())
+    .then(json => gmOnSub(json));
+    
+    function gmOnSub (json) {
+      try{
+        if(json.status.status === 2 || json.status.status === 5){
+          mowing = 1;
+        }
+      }catch(error){
         me.log("Get Mower On error: " + error.message);
         return next(error);
       }
-      var obj = JSON.parse(body);
-      if(obj.status.status === 2 || obj.status.status === 5){
-        mowing = 1;
-      }
       return next(null, mowing);
-    });
+    }
   },
   setMowerOnCharacteristic: function (on, next) {
     const me = this;
@@ -275,21 +270,18 @@ myRobo.prototype = {
     }else{
       me.setModeUrl = me.setEodModeUrl;
     }
-    request({
-        url: me.setModeUrl,
-        method: 'GET',
-    }, 
-    function (error, response, body) {
-      if (error) {
-        me.log("Set Mower On error: " + error.message);
+
+    fetch(me.setModeUrl).catch(error => {
+      me.log("Set Mower on error: " + error.message);
         return next(error);
-      }
-      return next();
     });
+    
+    return next();
   },
   getTemperatureCharacteristic: function (next) {
     const me = this;
     var type;
+    var temperature = 0;
     
     if(jsonInfoAvailable){
       if(isModern){
@@ -302,42 +294,39 @@ myRobo.prototype = {
         type = me.card;
       }
     }
-    var temperature = 0;
+
     if(type === "HX"){
-      request({
-        url: me.tempUrl,
-        method: 'GET',
-      }, 
-      function (error, response, body) {
-        if (error) {
+      fetch(this.tempUrl)
+      .then(res => res.json())
+      .then(json => getTemp(json));
+
+      function getTemp(json){
+        try{
+         temperature = json.health.climate.temperature;
+          return next(null, temperature);
+        }catch(error){
           me.log("Get temperature error: " + error.message);
           return next(temperature);
         }
-        var obj = JSON.parse(body);
-        temperature = obj.health.climate.temperature;
-        me.log("Mower temperature: " + temperature);
-        return next(null, temperature);
-      });
+      }
     }else{
-      request({
-        url: me.batteryUrl,
-        method: 'GET',
-      }, 
-      function (error, response, body) {
-        if (error) {
-          me.log("Get battery temperature error: " + error.message);
+      fetch(this.batteryUrl)
+      .then(res => res.json())
+      .then(json => getBatteryTemp(json));
+      
+      function getBatteryTemp(json){
+        try{
+          if(json.battery === undefined){
+            temperature = json.batteries[0].temperature;
+          }else{
+            temperature = json.battery.temperature;
+          }
           return next(null, temperature);
+        }catch(error){
+          me.log("Get temperature error: " + error.message);
+          return next(temperature);
         }
-        var obj = JSON.parse(body);
-        if(obj.battery === undefined){
-          temperature = obj.batteries[0].temperature;
-        }else{
-          temperature = obj.battery.temperature;
-        }
-        temperature = temperature/10;
-        me.log("Battery temperature: " + temperature);
-        return next(null, temperature);
-      });
-    }    
+      }
+    }
   }
 };
