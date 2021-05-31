@@ -2,11 +2,20 @@
 
 <img src="https://media.giphy.com/media/ORUDaRRrDv6Gct22tS/giphy.gif" width="30%" align="right"> 
 
-Development ongoing.  This plugin will fetch battery level, simulate mowing with a fan accessory, and provide an "on/off"-switch for toggling auto/home.  To activate "end of day"-mode, click the fan accessory while it's mowing.
+Development ongoing.
+
+**This plugin will:**
+* Fetch battery level / low battery warning
+* Fetch charging status
+* Simulate mowing with a fan accessory
+* Provide an "on/off"-switch for toggling auto or home mode.  
+
+To activate "end of day"-mode, click the fan accessory while it's mowing.
 
 ## Usage
 
 `npm install -g homebridge-robonect`
+**NB** Version 1.0.22 is the last one to support Robonect H30x. Install using `npm install -g homebridge-robonect@1.0.22`
 
 Config as follows:  
 
@@ -25,6 +34,5 @@ Config as follows:
 ### Note
  * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
  * PORT and show-humidity is optional
- * BE SURE to update to at least 1.0.18 if using Robonect firmware 1.0 beta8 or newer.
 
 Discuss the plugin with me and others, [here.](https://forum.robonect.de/viewforum.php?f=55)
