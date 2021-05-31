@@ -35,6 +35,7 @@ Config as follows:
 
 ### Note
  * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
- * PORT and show-humidity is optional and is only used in plugin version 1.0.22 and older
+ * PORT is optional
+ * show-humidity is optional and is only used in plugin version 1.0.22 and older
 
 Discuss the plugin with me and others, [here.](https://forum.robonect.de/viewforum.php?f=55)
