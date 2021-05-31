@@ -109,15 +109,13 @@ myRobo.prototype = {
     let tempService = new Service.TemperatureSensor("Temperature");
     this.services.push(tempService);
 
-    
-
-    this.humidityService = humidityService;
     this.switchService = switchService;
     this.fanService = fanService;
     this.informationService = informationService; 
     this.batteryService = batteryService;
     this.humidityService = humidityService;
     this.tempService = tempService;
+
     return this.services;
 
   },  
