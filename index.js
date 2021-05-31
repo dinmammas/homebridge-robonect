@@ -15,7 +15,7 @@ module.exports = function (homebridge) {
 function myRobo(log, config) {
   this.config = config;
   this.log = log;
-  
+
   /* URLS */
   this.getUrl = url.parse(config.getUrl);
   
@@ -37,9 +37,7 @@ function myRobo(log, config) {
 myRobo.prototype = {
   
   getServices: function () {
-
     async function populateJson(me) {
-      //me.log(me.statusUrl);
       try{
         const response1 = await fetch(me.statusUrl);
         statusJson = await response1.json();
@@ -53,38 +51,27 @@ myRobo.prototype = {
 
     function updateDevices(me){
       
-      /* Is mower in auto or home mode */ 
-      let switchOn = false;
-      if(statusJson.status.mode === 0 || statusJson.status.mode === 1){
-        switchOn = true;
-      }
-      me.switchService.getCharacteristic(Characteristic.On).updateValue(switchOn);
-
+      /* Is mower in auto or home mode */
+      me.switchService.getCharacteristic(Characteristic.On).updateValue((statusJson.status.mode === 0 || statusJson.status.mode === 1) ? true : false);
       /* Is mower mowing */
-      let mowing = 0;
-      if(statusJson.status.status === 2 || statusJson.status.status === 5){
-        mowing = 1;
-      }
-      me.fanService.getCharacteristic(Characteristic.On).updateValue(mowing);
-      
+      me.fanService.getCharacteristic(Characteristic.On).updateValue((statusJson.status.status === 2 || statusJson.status.status === 5) ? 1 : 0);
       /* Update battery level */
       me.batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(statusJson.status.battery);
       /* Update charging status */
       me.batteryService.getCharacteristic(Characteristic.ChargingState).updateValue((statusJson.status.status == 4) ? 1 : 0);
       /* Update low battery warning */ 
       me.batteryService.getCharacteristic(Characteristic.StatusLowBattery).updateValue((statusJson.status.battery < 20) ? 1 : 0);
-
       /* Update humidity level */
       me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
+      /* Update temperature */
       tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
 
       /* Chatty log */
       me.log("Updating status values");
-      me.log("Status:" + switchOn + " Mowing:" + mowing + " Batterylevel:" + statusJson.status.battery);
     }
 
     populateJson(this);
-    setInterval(() => { populateJson(this) }, 20000);
+    setInterval(() => { populateJson(this) }, 60000);
 
     this.services = [];
 
@@ -138,8 +125,10 @@ myRobo.prototype = {
     const me = this;
     if(on){
       me.setModeUrl = me.setAutoModeUrl;
+      me.log("Setting auto mode");
     }else{
       me.setModeUrl = me.setHomeModeUrl;
+      me.log("Setting home mode");
     }
 
     fetch(me.setModeUrl).catch(error => {
@@ -153,8 +142,10 @@ myRobo.prototype = {
     const me = this;
     if(on){
       me.setModeUrl = me.setAutoModeUrl;
+      me.log("Setting auto mode");
     }else{
       me.setModeUrl = me.setEodModeUrl;
+      me.log("Setting EOD mode");
     }
 
     fetch(me.setModeUrl).catch(error => {
