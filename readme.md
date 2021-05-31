@@ -14,7 +14,7 @@ To activate "end of day"-mode, click the fan accessory while it's mowing.
 
 ## Usage
 
-`npm install -g homebridge-robonect`
+`npm install -g homebridge-robonect`   
 **NB** Version 1.0.22 is the last one to support Robonect H30x. Install using `npm install -g homebridge-robonect@1.0.22`
 
 Config as follows:  
