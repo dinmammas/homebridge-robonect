@@ -1,5 +1,6 @@
 # Homebridge-Robonect
-
+[![Downloads](https://img.shields.io/npm/dt/homebridge-robonect.svg?color=critical)](https://www.npmjs.com/package/homebridge-robonect)
+[![Version](https://img.shields.io/npm/v/homebridge-robonect)](https://www.npmjs.com/package/homebridge-robonect)<br>
 <img src="https://media.giphy.com/media/ORUDaRRrDv6Gct22tS/giphy.gif" width="30%" align="right"> 
 
 Development ongoing.
