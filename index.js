@@ -32,7 +32,6 @@ function myRobo(log, config) {
   this.modelInfo = config.model + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
   this.card = config['robonect-card'];
-  this.showHumidity = config['show-humidity'];
  }
 
 myRobo.prototype = {
@@ -60,7 +59,6 @@ myRobo.prototype = {
         switchOn = true;
       }
       me.switchService.getCharacteristic(Characteristic.On).updateValue(switchOn);
-      //me.log(switchService + " " + switchOn);
 
       /* Is mower mowing */
       let mowing = 0;
@@ -80,6 +78,7 @@ myRobo.prototype = {
       me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
       tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
 
+      /* Chatty log */
       me.log("Updating status values");
       me.log("Status:" + switchOn + " Mowing:" + mowing + " Batterylevel:" + statusJson.status.battery);
     }
