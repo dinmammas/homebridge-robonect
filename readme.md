@@ -34,9 +34,18 @@ Config as follows:
 	}  
   
 
+  |     Parameter |        Description      |  Default |   type   |  Optional |
+|:--------------|:------------------------|:--------:|:--------:|------------:|
+| `accessory`  | always `"HomebridgeRobonect"` |     ""    |  String  | no    |
+| `name`      | The name of your mower, as you want it to appear in the Home App  | ""    |  String  |no |
+| `make`  | The manufacturer of your mower. I.e. "Husqvarna" or "Gardena"   |  "" |  String |no |
+| `model`       |  Your mower model. I.e. "Automower 305"        |  "" |  String  |no |
+| `robonect-card`        | Robonect card type. Either "H30x" or "HX". Note - H30x is only supported in versions 1.0.22 or older. |    ""     |  String  |no |
+| `serial-number`        | The serial number of you mower|  ""  |  String  |no |
+| `show-humidity`| Set to either yes or no, to enable the humidity sensor (valid for version 1.0.22 or older) | "yes" |  String  | yes |
+| `getUrl` | The URL to your mower. PORT is optional. | "" | String | no |
+
 ### Note
  * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
- * PORT is optional
- * show-humidity is optional and is only used in plugin version 1.0.22 and older
 
 Discuss the plugin with me and others, [here.](https://forum.robonect.de/viewforum.php?f=55)
