@@ -32,6 +32,12 @@ function myRobo(log, config) {
   this.modelInfo = config.model + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
   this.card = config['robonect-card'];
+  this.pollingInterval = config.pollingInterval || 60;
+  if(this.pollingInterval < 60 || isNaN(this.pollingInterval)){
+    this.pollingInterval = 60000;
+  } else {
+    this.pollingInterval = this.pollingInterval * 1000;
+  }
  }
 
 myRobo.prototype = {
@@ -67,11 +73,10 @@ myRobo.prototype = {
       tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
 
       /* Chatty log */
-      me.log("Updating status values");
+      me.log("Updating status values every " + me.pollingInterval/1000 + "s");
     }
-
     populateJson(this);
-    setInterval(() => { populateJson(this) }, 60000);
+    setInterval(() => { populateJson(this) }, this.pollingInterval);
 
     this.services = [];
 
@@ -102,7 +107,7 @@ myRobo.prototype = {
     this.services.push(batteryService);
 
     /* HumidityService */
-    let humidityService = new Service.HumiditySensor("Battery level");
+    let humidityService = new Service.HumiditySensor("Humidity");
     this.services.push(humidityService);
 
     /* Temperature Service */

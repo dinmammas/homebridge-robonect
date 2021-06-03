@@ -29,7 +29,8 @@ Config as follows:
 		"model": "Mower Model",  
 		"robonect-card": "H30x or HX",  
 		"serial-number": "Serialnr of your mower",  
-		"show-humidity": "yes or no",  
+		"show-humidity": "yes or no",
+		"pollingInterval": time-in-seconds,  
 		"getUrl": "http://USER:PASS@SERVER:PORT"  
 	}  
   
@@ -43,6 +44,7 @@ Config as follows:
 | `robonect-card`        | Robonect card type. Either "H30x" or "HX". Note - H30x is only supported in versions 1.0.22 or older. |    ""     |  String  |no |
 | `serial-number`        | The serial number of you mower|  ""  |  String  |no |
 | `show-humidity`| Set to either yes or no, to enable the humidity sensor (valid for version 1.0.22 or older) | "yes" |  String  | yes |
+|`pollingInterval`| Set the interval for polling the mower. Cannot be set lower than 60s. | 60 | int | yes |
 | `getUrl` | The URL to your mower. PORT is optional. | "" | String | no |
 
 ### Note
