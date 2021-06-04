@@ -33,7 +33,7 @@ function myRobo(log, config) {
   this.serialNumberInfo = config['serial-number'];
   this.card = config['robonect-card'];
   this.pollingInterval = config.pollingInterval || 60;
-  if(this.pollingInterval < 60 || isNaN(this.pollingInterval)){
+  if(this.pollingInterval < 30 || isNaN(this.pollingInterval)){
     this.pollingInterval = 60000;
   } else {
     this.pollingInterval = this.pollingInterval * 1000;
