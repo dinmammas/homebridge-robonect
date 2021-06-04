@@ -31,7 +31,6 @@ function myRobo(log, config) {
   this.manufactInfo = config.mower + "/Robonect";
   this.modelInfo = config.model + "/" + config['robonect-card'];
   this.serialNumberInfo = config['serial-number'];
-  this.card = config['robonect-card'];
   this.pollingInterval = config.pollingInterval || 60;
   if(this.pollingInterval < 30 || isNaN(this.pollingInterval)){
     this.pollingInterval = 60000;
@@ -131,6 +130,7 @@ myRobo.prototype = {
       me.log("Setting auto mode");
     }else{
       me.setModeUrl = me.setHomeModeUrl;
+      me.fanService.getCharacteristic(Characteristic.On).updateValue(0);
       me.log("Setting home mode");
     }
 
@@ -149,6 +149,7 @@ myRobo.prototype = {
     }else{
       me.setModeUrl = me.setEodModeUrl;
       me.log("Setting EOD mode");
+      me.fanService.getCharacteristic(Characteristic.On).updateValue(0);
     }
 
     fetch(me.setModeUrl).catch(error => {
