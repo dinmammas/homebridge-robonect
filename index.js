@@ -120,6 +120,8 @@ myRobo.prototype = {
     this.humidityService = humidityService;
     this.tempService = tempService;
 
+    switchService.setPrimaryService(true);
+
     return this.services;
 
   },  

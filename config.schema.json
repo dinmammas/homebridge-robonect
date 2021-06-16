@@ -1,0 +1,43 @@
+{
+  "pluginAlias": "HomebridgeRobonect",
+  "pluginType": "accessory",
+  "singular": false,
+  "headerDisplay": "Please see the [npm page](https://www.npmjs.com/package/homebridge-robonect) for detailed installation instructions.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true
+      },
+      "mower": {
+        "title": "Mower make",
+        "type": "string",
+        "required": true
+      },
+      "model": {
+        "title": "Model",
+        "type": "string",
+        "required": true
+      },
+      "serial-number": {
+        "title": "Serial number",
+        "type": "string",
+        "required": true
+      },
+      "pollingInterval": {
+        "title": "Polling interval",
+        "type": "integer",
+        "default": 60,
+        "minimum": 30,
+        "required": false
+      },
+      "getUrl": {
+        "title": "URL to your mower (http://user:pass@server:port)",
+        "type": "string",
+        "required": true
+      }
+    }
+  }
+}
