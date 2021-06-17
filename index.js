@@ -6,6 +6,8 @@ const url = require('url');
 let statusJson = null;
 let healthJson = null;
 
+let setupOK = false;
+
 module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
@@ -17,8 +19,24 @@ function myRobo(log, config) {
   this.log = log;
 
   /* URLS */
-  this.getUrl = url.parse(config.getUrl);
-  
+
+  if(typeof config.getUrl === 'string' && isValidHttpUrl(config.getUrl)){
+    this.getUrl = url.parse(config.getUrl);
+    setupOK = true;
+  }else{
+    this.log("URL not properly configured, plugin will not work.");
+  }
+
+  function isValidHttpUrl(string) {
+    let url;
+    try {
+      url = new URL(string);
+    } catch (_) {
+      return false;  
+    }
+    return url.protocol === "http:" || url.protocol === "https:";
+  }
+
   this.statusUrl = url.parse(config.getUrl + '/json?cmd=status');
   this.healthUrl = url.parse(config.getUrl + '/json?cmd=health');
   this.versionUrl = url.parse(config.getUrl + '/json?cmd=version');
@@ -28,9 +46,9 @@ function myRobo(log, config) {
   this.setEodModeUrl = url.parse(config.getUrl + '/json?cmd=mode&mode=eod');
   
   /* Static config values */
-  this.manufactInfo = config.mower + "/Robonect";
-  this.modelInfo = config.model + "/" + config['robonect-card'];
-  this.serialNumberInfo = config['serial-number'];
+  this.manufactInfo = config.mower + "/Robonect" || "Generic Mower";
+  this.modelInfo = config.model || "Generic Model";
+  this.serialNumberInfo = config['serial-number'] || "12345";
   this.pollingInterval = config.pollingInterval || 60;
   if(this.pollingInterval < 30 || isNaN(this.pollingInterval)){
     this.pollingInterval = 60000;
@@ -74,8 +92,10 @@ myRobo.prototype = {
       /* Chatty log */
       me.log("Updating status values every " + me.pollingInterval/1000 + "s");
     }
-    populateJson(this);
-    setInterval(() => { populateJson(this) }, this.pollingInterval);
+    if(setupOK){
+      populateJson(this);
+      setInterval(() => { populateJson(this) }, this.pollingInterval);
+    }
 
     this.services = [];
 
