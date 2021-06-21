@@ -1,7 +1,8 @@
 
 # Homebridge-Robonect
 [![Downloads](https://img.shields.io/npm/dt/homebridge-robonect.svg?color=critical)](https://www.npmjs.com/package/homebridge-robonect)
-[![Version](https://img.shields.io/npm/v/homebridge-robonect)](https://www.npmjs.com/package/homebridge-robonect)[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)<br>
+[![Version](https://img.shields.io/npm/v/homebridge-robonect)](https://www.npmjs.com/package/homebridge-robonect)
+[![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)<br>
 <img src="https://i.postimg.cc/QxQwrNV3/IMG-1446.png" width="30%" align="right"> 
 
 Development ongoing.

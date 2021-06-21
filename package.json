@@ -23,5 +23,9 @@
   ],
   "dependencies": {
     "node-fetch": "^2.6.0"
+  },
+  "funding": {
+    "type": "paypal",
+    "url": "https://paypal.me/dinmammas"
   }
 }
