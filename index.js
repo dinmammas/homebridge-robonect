@@ -32,7 +32,7 @@ function myRobo(log, config) {
     try {
       url = new URL(string);
     } catch (_) {
-      return false;  
+      return false;
     }
     return url.protocol === "http:" || url.protocol === "https:";
   }
@@ -44,12 +44,17 @@ function myRobo(log, config) {
   this.setAutoModeUrl = url.parse(config.getUrl + '/json?cmd=mode&mode=auto');
   this.setHomeModeUrl = url.parse(config.getUrl + '/json?cmd=mode&mode=home');
   this.setEodModeUrl = url.parse(config.getUrl + '/json?cmd=mode&mode=eod');
-  
+  this.stopUrl = url.parse(config.getUrl + '/json?cmd=stop');
+  this.startUrl = url.parse(config.getUrl + '/json?cmd=start');
+
+
   /* Static config values */
-  this.manufactInfo = config.mower + "/Robonect" || "Generic Mower";
+  this.manufactInfo = config.mower || "Generic Mower";
   this.modelInfo = config.model || "Generic Model";
   this.serialNumberInfo = config['serial-number'] || "12345";
   this.pollingInterval = config.pollingInterval || 60;
+  this.fanMode = config.fanMode || 0;
+
   if(this.pollingInterval < 30 || isNaN(this.pollingInterval)){
     this.pollingInterval = 60000;
   } else {
@@ -58,7 +63,7 @@ function myRobo(log, config) {
  }
 
 myRobo.prototype = {
-  
+
   getServices: function () {
     async function populateJson(me) {
       try{
@@ -73,7 +78,7 @@ myRobo.prototype = {
     }
 
     function updateDevices(me){
-      
+
       /* Is mower in auto or home mode */
       me.switchService.getCharacteristic(Characteristic.On).updateValue((statusJson.status.mode === 0 || statusJson.status.mode === 1) ? true : false);
       /* Is mower mowing */
@@ -82,7 +87,7 @@ myRobo.prototype = {
       me.batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(statusJson.status.battery);
       /* Update charging status */
       me.batteryService.getCharacteristic(Characteristic.ChargingState).updateValue((statusJson.status.status == 4) ? 1 : 0);
-      /* Update low battery warning */ 
+      /* Update low battery warning */
       me.batteryService.getCharacteristic(Characteristic.StatusLowBattery).updateValue((statusJson.status.battery < 20) ? 1 : 0);
       /* Update humidity level */
       me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
@@ -109,7 +114,7 @@ myRobo.prototype = {
     this.services.push(informationService);
 
     /* Switch Service */
-    let switchService = new Service.Switch("Auto/Home");
+    let switchService = new Service.Switch("Auto");
     switchService
       .getCharacteristic(Characteristic.On).on('set', this.setSwitchOnCharacteristic.bind(this));
     this.services.push(switchService);
@@ -122,7 +127,7 @@ myRobo.prototype = {
     this.services.push(fanService);
 
     /* Battery Service */
-    let batteryService = new Service.BatteryService();      
+    let batteryService = new Service.BatteryService();
     this.services.push(batteryService);
 
     /* HumidityService */
@@ -135,7 +140,7 @@ myRobo.prototype = {
 
     this.switchService = switchService;
     this.fanService = fanService;
-    this.informationService = informationService; 
+    this.informationService = informationService;
     this.batteryService = batteryService;
     this.humidityService = humidityService;
     this.tempService = tempService;
@@ -144,7 +149,7 @@ myRobo.prototype = {
 
     return this.services;
 
-  },  
+  },
   setSwitchOnCharacteristic: function (on, next) {
     const me = this;
     if(on){
@@ -166,11 +171,23 @@ myRobo.prototype = {
   setMowerOnCharacteristic: function (on, next) {
     const me = this;
     if(on){
-      me.setModeUrl = me.setAutoModeUrl;
-      me.log("Setting auto mode");
+      if(me.fanMode === 1){
+        me.setModeUrl = me.startUrl;
+        me.log("Starting mower");
+      }else{
+        me.setModeUrl = me.setAutoModeUrl;
+        me.log("Setting auto mode");
+      }
+
     }else{
-      me.setModeUrl = me.setEodModeUrl;
-      me.log("Setting EOD mode");
+      if(me.fanMode === 1){
+        me.setModeUrl = me.stopUrl;
+        me.log("Stopping mower");
+      }else{
+        me.setModeUrl = me.setEodModeUrl;
+        me.log("Setting EOD mode");
+      }
+
       me.fanService.getCharacteristic(Characteristic.On).updateValue(0);
     }
 
@@ -178,7 +195,7 @@ myRobo.prototype = {
       me.log("Set Mower on error: " + error.message);
         return next(error);
     });
-    
+
     return next();
   }
 };

@@ -14,23 +14,33 @@
       "mower": {
         "title": "Mower make",
         "type": "string",
-        "required": true
+        "required": false
       },
       "model": {
         "title": "Model",
         "type": "string",
-        "required": true
+        "required": false
       },
       "serial-number": {
         "title": "Serial number",
         "type": "string",
-        "required": true
+        "required": false
       },
       "pollingInterval": {
         "title": "Polling interval",
         "type": "integer",
         "default": 60,
         "minimum": 30,
+        "required": false
+      },
+      "fanMode": {
+        "title": "Fan mode",
+        "type": "integer",
+        "default": 0,
+        "oneOf": [
+          { "title": "End of day/Auto", "enum": [0]},
+          { "title": "Stop/Start", "enum": [1]}
+        ],
         "required": false
       },
       "getUrl": {
