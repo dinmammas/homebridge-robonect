@@ -92,7 +92,9 @@ myRobo.prototype = {
       /* Update humidity level */
       me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
       /* Update temperature */
-      tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
+      me.tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
+      /* Check if mower has an error */
+      me.motionService.getCharacteristic(Characteristic.MotionDetected).updateValue((statusJson.status.status === 7 || statusJson.status.status === 8) ? true : false);
 
       /* Chatty log */
       me.log("Updating status values every " + me.pollingInterval/1000 + "s");
@@ -138,12 +140,17 @@ myRobo.prototype = {
     let tempService = new Service.TemperatureSensor("Temperature");
     this.services.push(tempService);
 
+    /* Motion sensor Service */
+    let motionService = new Service.MotionSensor("Mower Error");
+    this.services.push(motionService);
+
     this.switchService = switchService;
     this.fanService = fanService;
     this.informationService = informationService;
     this.batteryService = batteryService;
     this.humidityService = humidityService;
     this.tempService = tempService;
+    this.motionService = motionService;
 
     switchService.setPrimaryService(true);
 
