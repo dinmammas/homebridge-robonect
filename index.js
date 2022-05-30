@@ -170,7 +170,7 @@ myRobo.prototype = {
 
     fetch(me.setModeUrl).catch(error => {
       me.log("Set Switch on error: " + error.message);
-        return next(error);
+        //return next(error);
     });
 
     return next();
@@ -178,21 +178,26 @@ myRobo.prototype = {
   setMowerOnCharacteristic: function (on, next) {
     const me = this;
     if(on){
-      if(me.fanMode === 1){
-        me.setModeUrl = me.startUrl;
-        me.log("Starting mower");
+      if(me.switchService.getCharacteristic(Characteristic.On).value === true){
+        if(me.fanMode === 1){
+          me.setModeUrl = me.startUrl;
+          me.log("Starting mower ");
+        }else{
+          me.setModeUrl = me.setAutoModeUrl;
+          me.log("Setting auto mode ");
+        }
       }else{
-        me.setModeUrl = me.setAutoModeUrl;
-        me.log("Setting auto mode");
+        me.fanService.getCharacteristic(Characteristic.On).updateValue(0);
+        me.log("Mower not in auto mode");
+        me.setModeUrl = me.setHomeModeUrl;
       }
-
     }else{
       if(me.fanMode === 1){
         me.setModeUrl = me.stopUrl;
-        me.log("Stopping mower");
+        me.log("Stopping mower ");
       }else{
         me.setModeUrl = me.setEodModeUrl;
-        me.log("Setting EOD mode");
+        me.log("Setting EOD mode ");
       }
 
       me.fanService.getCharacteristic(Characteristic.On).updateValue(0);
@@ -200,7 +205,7 @@ myRobo.prototype = {
 
     fetch(me.setModeUrl).catch(error => {
       me.log("Set Mower on error: " + error.message);
-        return next(error);
+      //return next(error);
     });
 
     return next();
