@@ -3,9 +3,6 @@ var Service, Characteristic;
 const fetch = require('node-fetch');
 const url = require('url');
 
-let statusJson = null;
-let healthJson = null;
-
 let setupOK = false;
 
 module.exports = function (homebridge) {
@@ -67,17 +64,15 @@ myRobo.prototype = {
   getServices: function () {
     async function populateJson(me) {
       try{
-        const response1 = await fetch(me.statusUrl);
-        statusJson = await response1.json();
-        const response2 = await fetch(me.healthUrl);
-        healthJson = await response2.json();
-        await updateDevices(me);
+		const responses = await Promise.all([fetch(me.statusUrl), fetch(me.healthUrl)])
+		const [status, health] = await Promise.all(responses.map(res => res.json()))
+        await updateDevices(me, status, health);
       }catch(err){
         me.log("Could not fetch status values :( " + err);
       }
     }
 
-    function updateDevices(me){
+    function updateDevices(me, statusJson, healthJson){
 
       /* Is mower in auto or home mode */
       me.switchService.getCharacteristic(Characteristic.On).updateValue((statusJson.status.mode === 0 || statusJson.status.mode === 1) ? true : false);
