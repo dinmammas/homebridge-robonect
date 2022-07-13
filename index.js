@@ -64,8 +64,8 @@ myRobo.prototype = {
   getServices: function () {
     async function populateJson(me) {
       try{
-		const responses = await Promise.all([fetch(me.statusUrl), fetch(me.healthUrl)])
-		const [status, health] = await Promise.all(responses.map(res => res.json()))
+        const responses = await Promise.all([fetch(me.statusUrl), fetch(me.healthUrl)])
+        const [status, health] = await Promise.all(responses.map(res => res.json()))
         await updateDevices(me, status, health);
       }catch(err){
         me.log("Could not fetch status values :( " + err);
@@ -92,7 +92,7 @@ myRobo.prototype = {
       me.motionService.getCharacteristic(Characteristic.MotionDetected).updateValue((statusJson.status.status === 7 || statusJson.status.status === 8) ? true : false);
 
       /* Chatty log */
-      me.log("Updating status values every " + me.pollingInterval/1000 + "s");
+      //me.log("Updating status values every " + me.pollingInterval/1000 + "s");
     }
     if(setupOK){
       populateJson(this);
