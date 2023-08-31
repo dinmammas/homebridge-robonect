@@ -51,6 +51,7 @@ function myRobo(log, config) {
   this.serialNumberInfo = config['serial-number'] || "12345";
   this.pollingInterval = config.pollingInterval || 60;
   this.fanMode = config.fanMode || 0;
+  this.showHealth = config.showHealth || 1;
 
   if(this.pollingInterval < 30 || isNaN(this.pollingInterval)){
     this.pollingInterval = 60000;
@@ -127,14 +128,17 @@ myRobo.prototype = {
     let batteryService = new Service.BatteryService();
     this.services.push(batteryService);
 
-    /* HumidityService */
-    let humidityService = new Service.HumiditySensor("Humidity");
-    this.services.push(humidityService);
+    if(this.showHealth === 1){
+      /* HumidityService */
+      let humidityService = new Service.HumiditySensor("Humidity");
+      this.services.push(humidityService);
+      this.humidityService = humidityService;
 
-    /* Temperature Service */
-    let tempService = new Service.TemperatureSensor("Temperature");
-    this.services.push(tempService);
-
+      /* Temperature Service */
+      let tempService = new Service.TemperatureSensor("Temperature");
+      this.services.push(tempService);
+      this.tempService = tempService;
+    }
     /* Motion sensor Service */
     let motionService = new Service.MotionSensor("Mower Error");
     this.services.push(motionService);
@@ -143,8 +147,6 @@ myRobo.prototype = {
     this.fanService = fanService;
     this.informationService = informationService;
     this.batteryService = batteryService;
-    this.humidityService = humidityService;
-    this.tempService = tempService;
     this.motionService = motionService;
 
     switchService.setPrimaryService(true);
