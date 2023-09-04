@@ -40,7 +40,7 @@ Config as follows:
 | `serial-number` | The serial number of you mower|  ""  |  String  |yes* |
 |`pollingInterval`| Set the interval for polling the mower. Cannot be set lower than 30s. | 60 | int | yes |
 |`fanMode`| Choose what toggling the fan off/on should do. `0 = eod/auto`, `1 = stop/start` | 0 | int | yes |
-|`showHealth`| Choose whether you want to show the temperature and humidity sensors. `1 = show, 0 = don't show` | 1 | int | yes |
+|`showHealth`| Choose whether you want to show the temperature and humidity sensors. `1 = show, 2 = don't show` | 1 | int | yes |
 | `getUrl`        | The URL to your mower. PORT is optional. | "" | String | no |
 
  *Only optional in versions >1.1.10

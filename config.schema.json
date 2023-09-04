@@ -43,6 +43,16 @@
         ],
         "required": false
       },
+      "showHealth": {
+        "title": "Show health sensors",
+        "type": "integer",
+        "default": 1,
+        "oneOf": [
+          { "title": "Show", "enum": [1]},
+          { "title": "Hide", "enum": [2]}
+        ],
+        "required": false
+      },
       "getUrl": {
         "title": "URL to your mower (http://user:pass@server:port)",
         "type": "string",

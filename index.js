@@ -85,10 +85,12 @@ myRobo.prototype = {
       me.batteryService.getCharacteristic(Characteristic.ChargingState).updateValue((statusJson.status.status == 4) ? 1 : 0);
       /* Update low battery warning */
       me.batteryService.getCharacteristic(Characteristic.StatusLowBattery).updateValue((statusJson.status.battery < 20) ? 1 : 0);
-      /* Update humidity level */
-      me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
-      /* Update temperature */
-      me.tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
+      if(me.showHealth === 1){
+        /* Update humidity level */
+        me.humidityService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(healthJson.health.climate.humidity);
+        /* Update temperature */
+        me.tempService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(healthJson.health.climate.temperature);
+      }
       /* Check if mower has an error */
       me.motionService.getCharacteristic(Characteristic.MotionDetected).updateValue((statusJson.status.status === 7 || statusJson.status.status === 8) ? true : false);
 
