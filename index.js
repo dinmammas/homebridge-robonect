@@ -69,7 +69,7 @@ myRobo.prototype = {
         const [status, health] = await Promise.all(responses.map(res => res.json()))
         await updateDevices(me, status, health);
       }catch(err){
-        me.log("Could not fetch status values :( " + err);
+        me.log("Could not fetch status values :( ");
       }
     }
 
@@ -168,7 +168,7 @@ myRobo.prototype = {
     }
 
     fetch(me.setModeUrl).catch(error => {
-      me.log("Set Switch on error: " + error.message);
+      me.log("Set Switch on error.");
         //return next(error);
     });
 
@@ -203,7 +203,7 @@ myRobo.prototype = {
     }
 
     fetch(me.setModeUrl).catch(error => {
-      me.log("Set Mower on error: " + error.message);
+      me.log("Set Mower on error.");
       //return next(error);
     });
 
