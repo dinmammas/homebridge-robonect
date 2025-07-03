@@ -127,7 +127,7 @@ myRobo.prototype = {
     this.services.push(fanService);
 
     /* Battery Service */
-    let batteryService = new Service.BatteryService();
+    let batteryService = new Service.Battery();
     this.services.push(batteryService);
 
     if(this.showHealth === 1){
