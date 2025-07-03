@@ -4,8 +4,6 @@
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)<br>
 <img src="https://i.postimg.cc/QxQwrNV3/IMG-1446.png" width="30%" align="right">
 
-Development ongoing.
-
 **This plugin will:**
 * Fetch battery level / low battery warning
 * Fetch charging status
@@ -53,7 +51,5 @@ Additional options to configure are:
 |:--|:--|:-:|:-:|:-:|
 | `show-humidity` | Set to either yes or no, to enable the humidity sensor (valid for version 1.0.22 or older) | "yes" |  String  | yes |
 | `robonect-card` | Robonect card type. Either "H30x" or "HX".|    ""     |  String  |no |
-
- * Input "HX" in capitals as robonect-card _**ONLY**_ if you have a Robonect HX! You'll get the temp from the temp sensor, rather than the battery. :)
 
 Discuss the plugin with me and others, [here.](https://forum.robonect.de/viewforum.php?f=55)
